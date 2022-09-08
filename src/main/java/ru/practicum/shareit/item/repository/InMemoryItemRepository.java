@@ -4,7 +4,7 @@ import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 @Repository
 public class InMemoryItemRepository implements ItemRepository {
-    private final Map<Long, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new LinkedHashMap<>();
     private long nextId = 0;
 
     @Override
@@ -44,18 +44,22 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Item update(long itemId, String name, String description, Boolean available) {
-        Item item = getById(itemId);
-        if (name != null) {
-            item.setName(name);
+        Item updatedItem = items.computeIfPresent(itemId, (id, oldItem) -> {
+            if (name != null) {
+                oldItem.setName(name);
+            }
+            if (description != null) {
+                oldItem.setDescription(description);
+            }
+            if (available != null) {
+                oldItem.setAvailable(available);
+            }
+            return oldItem;
+        });
+        if (updatedItem == null) {
+            throw new ItemNotFoundException(String.format("Item with id=%d is not found", itemId));
         }
-        if (description != null) {
-            item.setDescription(description);
-        }
-        if (available != null) {
-            item.setAvailable(available);
-        }
-        items.put(itemId, item);
-        return new Item(item);
+        return new Item(updatedItem);
     }
 
     @Override

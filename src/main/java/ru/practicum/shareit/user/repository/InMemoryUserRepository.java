@@ -6,8 +6,8 @@ import ru.practicum.shareit.user.exception.DuplicateEmailException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,8 +17,8 @@ import java.util.Set;
  */
 @Repository
 public class InMemoryUserRepository implements UserRepository {
-    private final Map<Long, User> users = new HashMap<>();
-    private final Set<String> uniqueEmails = new HashSet<>();
+    private final Map<Long, User> users = new LinkedHashMap<>();
+    private final Set<String> uniqueEmails = new LinkedHashSet<>();
     private long nextId = 0;
 
     @Override
@@ -50,18 +50,25 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User update(User user) {
-        User oldUser = getById(user.getId());
-        if (oldUser == null) {
+        User updatedUser = users.computeIfPresent(user.getId(), (userId, oldUser) -> {
+            String newEmail = user.getEmail();
+            if (newEmail != null && !newEmail.equals(oldUser.getEmail()) && uniqueEmails.contains(newEmail)) {
+                throw new DuplicateEmailException("Email is already existing");
+            }
+            if (newEmail != null && newEmail.length() != 0) {
+                uniqueEmails.remove(oldUser.getEmail());
+                uniqueEmails.add(newEmail);
+                oldUser.setEmail(newEmail);
+            }
+            if (user.getName() != null && user.getName().length() != 0) {
+                oldUser.setName(user.getName());
+            }
+            return oldUser;
+        });
+        if (updatedUser == null) {
             throw new UserNotFoundException(String.format("User with id=%d is not found", user.getId()));
         }
-        uniqueEmails.remove(oldUser.getEmail());
-        if (uniqueEmails.contains(user.getEmail())) {
-            uniqueEmails.add(oldUser.getEmail());
-            throw new DuplicateEmailException("Email is already existing");
-        }
-        uniqueEmails.add(user.getEmail());
-        users.put(user.getId(), new User(user));
-        return user;
+        return new User(updatedUser);
     }
 
     @Override
