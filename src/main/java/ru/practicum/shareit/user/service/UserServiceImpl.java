@@ -2,12 +2,14 @@ package ru.practicum.shareit.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.exception.UserNotFoundException;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserDto;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -23,35 +25,46 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getById(Long userId) {
-        return UserMapper.toDto(userRepository.getById(userId));
+    public UserDto findById(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(String.format("User with id=%d is not found", userId));
+        }
+        return UserMapper.toDto(user.get());
     }
 
     @Override
-    public List<UserDto> getAll() {
-        return userRepository.getAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
+    public List<UserDto> findAll() {
+        return userRepository.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public UserDto add(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        return UserMapper.toDto(userRepository.add(user));
+        return UserMapper.toDto(userRepository.save(user));
     }
 
     @Override
     public UserDto update(Long userId, UserDto userDto) {
-        User oldUser = userRepository.getById(userId);
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(String.format("User with id=%d is not found", userId));
+        }
+        return UserMapper.toDto(userRepository.save(updateRequiredFields(user.get(), userDto)));
+    }
+
+    private User updateRequiredFields(User user, UserDto userDto) {
         if (userDto.getEmail() != null) {
-            oldUser.setEmail(userDto.getEmail());
+            user.setEmail(userDto.getEmail());
         }
         if (userDto.getName() != null) {
-            oldUser.setName(userDto.getName());
+            user.setName(userDto.getName());
         }
-        return UserMapper.toDto(userRepository.update(oldUser));
+        return user;
     }
 
     @Override
-    public boolean delete(Long userId) {
-        return userRepository.delete(userId);
+    public void delete(Long userId) {
+        userRepository.deleteById(userId);
     }
 }
