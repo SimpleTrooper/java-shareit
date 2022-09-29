@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.base.exception.IllegalRequestStateException;
 import ru.practicum.shareit.booking.exception.BookingCreationException;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  * Реализация бизнес логики бронирований
  */
 @Service
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
@@ -47,6 +49,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingSendingDto add(Long bookerId, BookingReceivingDto bookingDto) {
         Optional<User> booker = userRepository.findById(bookerId);
         if (booker.isEmpty()) {
@@ -71,6 +74,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingSendingDto handleStatus(Long userId, Long bookingId, ApprovedState approved) {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isEmpty()) {
@@ -97,10 +101,6 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new IllegalRequestStateException(String.format("Status=%s can be only 'true' or 'false'",
                         approved));
-        }
-        int numberOfAffected = bookingRepository.updateStatusById(bookingId, status);
-        if (numberOfAffected == 0) {
-            throw new RuntimeException(String.format("Cannot update status for booking with id=%d", bookingId));
         }
         booking.get().setStatus(status);
         return BookingMapper.toSendingDto(booking.get());

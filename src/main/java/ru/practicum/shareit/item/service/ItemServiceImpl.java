@@ -2,9 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingShort;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.exception.CommentCreationException;
@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -46,13 +47,15 @@ public class ItemServiceImpl implements ItemService {
             throw new ItemNotFoundException(String.format("Item with id=%d is not found", itemId));
         }
         if (userId.equals(item.get().getOwner().getId())) {
-            List<BookingShort> lastBooking = bookingRepository.findPastByItemId(itemId,
+            List<Booking> lastBooking = bookingRepository.findPastByItemId(itemId,
                     PageRequest.of(0, 1));
-            List<BookingShort> nextBooking = bookingRepository.findFutureByItemId(itemId,
+            List<Booking> nextBooking = bookingRepository.findFutureByItemId(itemId,
                     PageRequest.of(0, 1));
             return ItemMapper.toDtoWithBookings(item.get(),
-                    lastBooking.size() != 1 ? null : lastBooking.get(0),
-                    nextBooking.size() != 1 ? null : nextBooking.get(0));
+                    lastBooking.size() != 1 ? null : ItemDtoWithBookings.BookingShort
+                            .toBookingShort(lastBooking.get(0)),
+                    nextBooking.size() != 1 ? null : ItemDtoWithBookings.BookingShort
+                            .toBookingShort(nextBooking.get(0)));
         }
         return ItemMapper.toDtoWithBookings(item.get(), null, null);
     }
@@ -63,6 +66,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto add(Long ownerId, ItemDto itemDto) {
         Optional<User> owner = userRepository.findById(ownerId);
         if (owner.isEmpty()) {
@@ -75,6 +79,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isEmpty()) {
@@ -85,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
             throw new InvalidItemOwnerException(String.format("Owner in http header(%d) and in repository(%d) " +
                     "is not the same! Item id=%d", userId, ownerId, itemId));
         }
-        Item returnedItem = itemRepository.save(updateRequiredFields(item.get(), itemDto));
+        Item returnedItem = updateRequiredFields(item.get(), itemDto);
         return ItemMapper.toDto(returnedItem);
     }
 
@@ -111,6 +116,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         List<Booking> booking = bookingRepository.findPastApprovedByBookerAndItem(userId, itemId,
                 PageRequest.of(0, 1));

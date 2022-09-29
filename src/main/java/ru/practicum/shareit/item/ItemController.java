@@ -134,7 +134,7 @@ public class ItemController {
                                  @Valid @RequestBody CommentDto commentDto) {
         log.info("Request to add comment to item with id = {} from user with id = {}", itemId, userId);
         CommentDto result = itemService.addComment(userId, itemId, commentDto);
-        log.info("Request to add comment to item with id = {} from user with id = {}", itemId, userId);
+        log.info("Successfully added comment to item with id = {} from user with id = {}", itemId, userId);
         return result;
     }
 }

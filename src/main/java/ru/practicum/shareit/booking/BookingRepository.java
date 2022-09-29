@@ -2,11 +2,8 @@ package ru.practicum.shareit.booking;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingShort;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
@@ -17,10 +14,6 @@ import java.util.List;
  * Репозиторий бронирований
  */
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    @Modifying
-    @Transactional
-    @Query("UPDATE Booking AS b SET b.status = ?2 WHERE b.id = ?1")
-    int updateStatusById(Long bookingId, BookingStatus status);
 
     List<Booking> findAllByBookerId(Long bookerId);
 
@@ -52,13 +45,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "FROM Booking AS b " +
             "WHERE b.start < current_timestamp AND b.item.id = ?1 AND b.status = 'APPROVED' " +
             "ORDER BY b.start DESC ")
-    List<BookingShort> findPastByItemId(Long itemId, Pageable page);
+    List<Booking> findPastByItemId(Long itemId, Pageable page);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.start > current_timestamp AND b.item.id = ?1 AND b.status = 'APPROVED' " +
             "ORDER BY b.start ASC ")
-    List<BookingShort> findFutureByItemId(Long itemId, Pageable page);
+    List<Booking> findFutureByItemId(Long itemId, Pageable page);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +

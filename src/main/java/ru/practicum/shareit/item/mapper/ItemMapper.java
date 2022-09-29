@@ -1,7 +1,5 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.booking.model.BookingShort;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.model.Comment;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
 public class ItemMapper {
     public static Item toItem(ItemDto itemDto) {
         List<Comment> comments = itemDto.getComments().stream()
-                                        .map(CommentMapper::toComment)
+                                        .map(ItemDto.ItemComment::toComment)
                                         .collect(Collectors.toList());
         return Item.builder()
                    .id(itemDto.getId())
@@ -28,28 +26,29 @@ public class ItemMapper {
     }
 
     public static ItemDto toDto(Item item) {
-        List<CommentDto> commentsDto = item.getComments().stream()
-                                           .map(CommentMapper::toDto)
-                                           .collect(Collectors.toList());
+        List<ItemDto.ItemComment> comments = item.getComments().stream()
+                                                 .map(ItemDto.ItemComment::toItemComment)
+                                                 .collect(Collectors.toList());
         return ItemDto.builder()
                       .id(item.getId())
                       .name(item.getName())
                       .description(item.getDescription())
                       .available(item.getAvailable())
-                      .comments(commentsDto)
+                      .comments(comments)
                       .build();
     }
 
-    public static ItemDtoWithBookings toDtoWithBookings(Item item, BookingShort lastBooking, BookingShort nextBooking) {
-        List<CommentDto> commentsDto = item.getComments().stream()
-                                           .map(CommentMapper::toDto)
-                                           .collect(Collectors.toList());
+    public static ItemDtoWithBookings toDtoWithBookings(Item item, ItemDtoWithBookings.BookingShort lastBooking,
+                                                        ItemDtoWithBookings.BookingShort nextBooking) {
+        List<ItemDto.ItemComment> comments = item.getComments().stream()
+                                                 .map(ItemDto.ItemComment::toItemComment)
+                                                 .collect(Collectors.toList());
         return ItemDtoWithBookings.builderWithBookings()
                                   .id(item.getId())
                                   .name(item.getName())
                                   .description(item.getDescription())
                                   .available(item.getAvailable())
-                                  .commentsDto(commentsDto)
+                                  .comments(comments)
                                   .lastBooking(lastBooking)
                                   .nextBooking(nextBooking)
                                   .build();
