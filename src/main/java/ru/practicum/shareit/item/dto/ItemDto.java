@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,16 +34,20 @@ public class ItemDto {
     private String description;
     @NotNull(groups = OnCreate.class)
     private Boolean available;
+    @Builder.Default
     private List<ItemComment> comments = new ArrayList<>();
+    private Long requestId;
 
     @Getter
     @Setter
     @AllArgsConstructor
+    @EqualsAndHashCode
     @Builder
     public static class ItemComment {
         private Long id;
         private String text;
         private String authorName;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime created;
 
         public static ItemComment toItemComment(Comment comment) {
@@ -52,22 +58,5 @@ public class ItemDto {
                     .created(comment.getCreated())
                     .build();
         }
-
-        public static Comment toComment(ItemComment comment) {
-            return Comment.builder()
-                              .id(comment.getId())
-                              .text(comment.getText())
-                              .created(comment.getCreated())
-                              .build();
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "ItemDto{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", available=" + available +
-                '}';
     }
 }

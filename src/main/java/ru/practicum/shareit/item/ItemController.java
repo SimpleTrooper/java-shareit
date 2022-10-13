@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import ru.practicum.shareit.base.pagination.PaginationRequest;
 import ru.practicum.shareit.base.validation.groups.OnUpdate;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -82,9 +83,9 @@ public class ItemController {
      * @return DTO вещи
      */
     @GetMapping("/{itemId}")
-    public ItemDto getById(@RequestHeader(name = "X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
+    public ItemDtoWithBookings getById(@RequestHeader(name = "X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.info("Request to get item with itemId={}", itemId);
-        ItemDto returnedItem = itemService.findById(userId, itemId);
+        ItemDtoWithBookings returnedItem = itemService.findById(userId, itemId);
         if (returnedItem != null) {
             log.info("Successfully get item with itemId={}", itemId);
         }
@@ -95,12 +96,17 @@ public class ItemController {
      * Получение всех вещей пользователя
      *
      * @param ownerId id пользователя
+     * @param from начальный индекс для пагинации
+     * @param size размер страницы для пагинации
      * @return Список DTO вещей
      */
     @GetMapping
-    public List<ItemDtoWithBookings> getAllByOwnerId(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
+    public List<ItemDtoWithBookings> getAllByOwnerId(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
+                                                     @RequestParam(defaultValue = "0") Integer from,
+                                                     @RequestParam(defaultValue = "10") Integer size) {
         log.info("Request to get all items by ownerId={}", ownerId);
-        List<ItemDtoWithBookings> items = itemService.findAllByOwnerId(ownerId);
+        PaginationRequest paginationRequest = new PaginationRequest(from, size);
+        List<ItemDtoWithBookings> items = itemService.findAllByOwnerId(ownerId, paginationRequest);
         log.info("Successfully get all items by ownerId={}", ownerId);
         return items;
     }
@@ -109,12 +115,17 @@ public class ItemController {
      * Поиск доступных вещей по названию и описанию
      *
      * @param text строка поиска
+     * @param from начальный индекс для пагинации
+     * @param size размер страницы для пагинации
      * @return Список DTO вещей
      */
     @GetMapping("/search")
-    public List<ItemDto> searchBy(@RequestParam String text) {
+    public List<ItemDto> searchBy(@RequestParam String text,
+                                  @RequestParam(defaultValue = "0") Integer from,
+                                  @RequestParam(defaultValue = "10") Integer size) {
         log.info("Request to get all available items by text={}", text);
-        List<ItemDto> items = itemService.searchAvailableBy(text);
+        PaginationRequest paginationRequest = new PaginationRequest(from, size);
+        List<ItemDto> items = itemService.searchAvailableBy(text, paginationRequest);
         log.info("Successfully got all available items by text={}", text);
         return items;
     }

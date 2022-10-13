@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -27,6 +28,7 @@ public class BookingSendingDto {
     @Getter
     @Setter
     @AllArgsConstructor
+    @EqualsAndHashCode
     @Builder
     public static class BookingItem {
         private Long id;
@@ -47,6 +49,7 @@ public class BookingSendingDto {
     @Getter
     @Setter
     @AllArgsConstructor
+    @EqualsAndHashCode
     @Builder
     public static class BookingUser {
         private Long id;

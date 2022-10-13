@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.booking.model.Booking;
@@ -14,16 +16,20 @@ import java.util.List;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 public class ItemDtoWithBookings extends ItemDto {
     private BookingShort lastBooking, nextBooking;
 
     @Getter
     @Setter
     @AllArgsConstructor
+    @EqualsAndHashCode
     @Builder
     public static class BookingShort {
         private Long id;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime start;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime end;
         private Long bookerId;
 
@@ -40,8 +46,8 @@ public class ItemDtoWithBookings extends ItemDto {
     @Builder(builderMethodName = "builderWithBookings")
     public ItemDtoWithBookings(Long id, String name, String description, Boolean available,
                                List<ItemDto.ItemComment> comments, BookingShort lastBooking,
-                               BookingShort nextBooking) {
-        super(id, name, description, available, comments);
+                               BookingShort nextBooking, Long requestId) {
+        super(id, name, description, available, comments, requestId);
         this.lastBooking = lastBooking;
         this.nextBooking = nextBooking;
     }

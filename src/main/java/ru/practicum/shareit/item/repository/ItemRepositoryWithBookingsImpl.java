@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.repository;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
@@ -26,8 +27,8 @@ public class ItemRepositoryWithBookingsImpl implements ItemRepositoryWithBooking
     }
 
     @Override
-    public List<ItemDtoWithBookings> findAllByOwnerIdWithBookings(Long ownerId) {
-        List<Item> itemsByOwner = itemRepository.findAllByOwnerId(ownerId);
+    public List<ItemDtoWithBookings> findAllByOwnerIdWithBookings(Long ownerId, Pageable pageable) {
+        List<Item> itemsByOwner = itemRepository.findAllByOwnerId(ownerId, pageable);
         return itemsByOwner.stream()
                            .map(item -> {
                                List<Booking> lastBooking = bookingRepository.findPastByItemId(item.getId(),

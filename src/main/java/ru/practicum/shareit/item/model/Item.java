@@ -16,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,20 +42,13 @@ public class Item {
     private String description;
     @Column(name = "available")
     private Boolean available;
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 
+    @Builder.Default
     @OneToMany(mappedBy = "item")
     private List<Comment> comments = new ArrayList<>();
-
-    public Item(Item item) {
-        this.id = item.id;
-        this.owner = new User(item.owner);
-        this.name = item.name;
-        this.description = item.description;
-        this.available = item.available;
-        this.request = item.request == null ? null : item.request;
-    }
 
     public Item(long id, User owner, String name, String description, Boolean available) {
         this.id = id;
@@ -64,5 +56,6 @@ public class Item {
         this.name = name;
         this.description = description;
         this.available = available;
+        this.comments = new ArrayList<>();
     }
 }

@@ -15,31 +15,31 @@ import java.util.List;
  */
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findAllByBookerId(Long bookerId);
+    List<Booking> findAllByBookerId(Long bookerId, Pageable pageable);
 
-    List<Booking> findAllByBookerIdAndStatus(Long bookerId, BookingStatus status);
+    List<Booking> findAllByBookerIdAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
 
-    List<Booking> findAllByBookerIdAndStartAfter(Long bookerId, LocalDateTime time);
+    List<Booking> findAllByBookerIdAndStartAfter(Long bookerId, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findAllByBookerIdAndEndBefore(Long bookerId, LocalDateTime time);
+    List<Booking> findAllByBookerIdAndEndBefore(Long bookerId, LocalDateTime time, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.start <= ?2 AND b.end >= ?2 AND b.booker.id = ?1")
-    List<Booking> findAllByBookerWhereTimeIsInside(Long bookerId, LocalDateTime time);
+    List<Booking> findAllByBookerWhereTimeIsInside(Long bookerId, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findAllByItemIdIn(Collection<Long> itemIds);
+    List<Booking> findAllByItemIdIn(Collection<Long> itemIds, Pageable pageable);
 
-    List<Booking> findAllByItemIdInAndStatus(Collection<Long> itemIds, BookingStatus status);
+    List<Booking> findAllByItemIdInAndStatus(Collection<Long> itemIds, BookingStatus status, Pageable pageable);
 
-    List<Booking> findAllByItemIdInAndStartAfter(Collection<Long> itemIds, LocalDateTime time);
+    List<Booking> findAllByItemIdInAndStartAfter(Collection<Long> itemIds, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findAllByItemIdInAndEndBefore(Collection<Long> itemIds, LocalDateTime time);
+    List<Booking> findAllByItemIdInAndEndBefore(Collection<Long> itemIds, LocalDateTime time, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.start <= ?2 AND b.end >= ?2 AND b.item.id IN (?1)")
-    List<Booking> findAllByItemIdInWhereTimeIsInside(Collection<Long> itemIds, LocalDateTime time);
+    List<Booking> findAllByItemIdInWhereTimeIsInside(Collection<Long> itemIds, LocalDateTime time, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
