@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import ru.practicum.shareit.base.pagination.PaginationRequest;
 import ru.practicum.shareit.booking.dto.BookingSendingDto;
 import ru.practicum.shareit.booking.model.ApprovedState;
 import ru.practicum.shareit.booking.model.BookingRequestState;
@@ -17,7 +18,9 @@ public interface BookingService {
 
     BookingSendingDto findById(Long userId, Long bookingId);
 
-    List<BookingSendingDto> findByBookerIdAndStatus(Long bookerId, BookingRequestState state);
+    List<BookingSendingDto> findByBookerIdAndStatus(Long bookerId, BookingRequestState state,
+                                                    PaginationRequest paginationRequest);
 
-    List<BookingSendingDto> findByOwnerIdAndStatus(Long bookerId, BookingRequestState state);
+    List<BookingSendingDto> findByOwnerIdAndStatus(Long bookerId, BookingRequestState state,
+                                                   PaginationRequest paginationRequest);
 }

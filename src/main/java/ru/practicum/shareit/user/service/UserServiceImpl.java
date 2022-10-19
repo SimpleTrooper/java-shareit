@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,11 +27,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(String.format("User with id=%d is not found", userId));
-        }
-        return UserMapper.toDto(user.get());
+        User user = findByIdOrThrow(userId);
+        return UserMapper.toDto(user);
     }
 
     @Override
@@ -50,11 +46,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto update(Long userId, UserDto userDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(String.format("User with id=%d is not found", userId));
-        }
-        return UserMapper.toDto(updateRequiredFields(user.get(), userDto));
+        User user = findByIdOrThrow(userId);
+        return UserMapper.toDto(updateRequiredFields(user, userDto));
     }
 
     private User updateRequiredFields(User user, UserDto userDto) {
@@ -65,6 +58,11 @@ public class UserServiceImpl implements UserService {
             user.setName(userDto.getName());
         }
         return user;
+    }
+
+    private User findByIdOrThrow(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new UserNotFoundException(String.format("User with id=%d is not found", userId)));
     }
 
     @Override

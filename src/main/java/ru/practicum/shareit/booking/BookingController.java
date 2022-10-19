@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.base.pagination.PaginationRequest;
 import ru.practicum.shareit.base.validation.groups.OnCreate;
 import ru.practicum.shareit.booking.dto.BookingReceivingDto;
 import ru.practicum.shareit.booking.dto.BookingSendingDto;
@@ -96,14 +97,19 @@ public class BookingController {
      *
      * @param userId id бронирующего
      * @param state  параметр запроса (ALL, CURRENT, PAST, FUTURE, WAITING, REJECTED)
+     * @param from начальный индекс для пагинации
+     * @param size размер страницы для пагинации
      * @return список DTO найденных сущностей
      */
     @GetMapping
     public List<BookingSendingDto> findAllCurrentUserBookingsByState(
             @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-            @RequestParam(required = false, defaultValue = "ALL") BookingRequestState state) {
+            @RequestParam(required = false, defaultValue = "ALL") BookingRequestState state,
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "10") Integer size) {
         log.info("Request to get bookings with booker_id={}", userId);
-        return bookingService.findByBookerIdAndStatus(userId, state);
+        PaginationRequest paginationRequest = new PaginationRequest(from, size);
+        return bookingService.findByBookerIdAndStatus(userId, state, paginationRequest);
     }
 
     /**
@@ -111,13 +117,18 @@ public class BookingController {
      *
      * @param userId id владельца
      * @param state  параметр запроса (ALL, CURRENT, PAST, FUTURE, WAITING, REJECTED)
+     * @param from начальный индекс для пагинации
+     * @param size размер страницы для пагинации
      * @return список DTO найденных сущностей
      */
     @GetMapping("/owner")
     public List<BookingSendingDto> findAllOwnerBookingsByState(
             @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-            @RequestParam(required = false, defaultValue = "ALL") BookingRequestState state) {
+            @RequestParam(required = false, defaultValue = "ALL") BookingRequestState state,
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "10") Integer size) {
         log.info("Request to get bookings with owner_id={}", userId);
-        return bookingService.findByOwnerIdAndStatus(userId, state);
+        PaginationRequest paginationRequest = new PaginationRequest(from, size);
+        return bookingService.findByOwnerIdAndStatus(userId, state, paginationRequest);
     }
 }

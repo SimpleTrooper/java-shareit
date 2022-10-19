@@ -2,8 +2,9 @@ package ru.practicum.shareit.item.mapper;
 
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,16 +13,14 @@ import java.util.stream.Collectors;
  * Маппер Item - ItemDto
  */
 public class ItemMapper {
-    public static Item toItem(ItemDto itemDto) {
-        List<Comment> comments = itemDto.getComments().stream()
-                                        .map(ItemDto.ItemComment::toComment)
-                                        .collect(Collectors.toList());
+    public static Item toItem(ItemDto itemDto, User owner, ItemRequest request) {
         return Item.builder()
                    .id(itemDto.getId())
                    .name(itemDto.getName())
                    .description(itemDto.getDescription())
                    .available(itemDto.getAvailable())
-                   .comments(comments)
+                   .owner(owner)
+                   .request(request)
                    .build();
     }
 
@@ -35,6 +34,7 @@ public class ItemMapper {
                       .description(item.getDescription())
                       .available(item.getAvailable())
                       .comments(comments)
+                      .requestId(item.getRequest() == null ? null : item.getRequest().getId())
                       .build();
     }
 
@@ -51,6 +51,7 @@ public class ItemMapper {
                                   .comments(comments)
                                   .lastBooking(lastBooking)
                                   .nextBooking(nextBooking)
+                                  .requestId(item.getRequest() == null ? null : item.getRequest().getId())
                                   .build();
     }
 }
