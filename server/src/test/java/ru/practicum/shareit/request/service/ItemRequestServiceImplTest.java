@@ -279,7 +279,7 @@ class ItemRequestServiceImplTest {
     void shouldAdd() {
         itemRequest1.setRequester(user);
         itemRequest1.setCreated(LocalDateTime.now());
-        when(itemRequestRepository.save(itemRequest1)).thenReturn(itemRequest1);
+        when(itemRequestRepository.save(any())).thenReturn(itemRequest1);
         ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest1);
 
         ItemRequestDto actual = itemRequestService.add(userId, itemRequestDto);
@@ -289,7 +289,7 @@ class ItemRequestServiceImplTest {
                 equalTo(actual.getCreated().truncatedTo(ChronoUnit.MINUTES)));
 
         verify(userRepository, times(1)).findById(userId);
-        verify(itemRequestRepository, times(1)).save(itemRequest1);
+        verify(itemRequestRepository, times(1)).save(any());
     }
 
     /**

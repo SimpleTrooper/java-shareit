@@ -45,6 +45,7 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -281,7 +282,7 @@ class ItemServiceImplTest {
                                .available(true)
                                .build();
         Item newItem = ItemMapper.toItem(toAdd, user3, null);
-        when(itemRepository.save(newItem)).thenReturn(newItem);
+        when(itemRepository.save(any())).thenReturn(newItem);
         ItemDto expected = ItemMapper.toDto(newItem);
 
         ItemDto actual = itemService.add(user3.getId(), toAdd);
@@ -289,7 +290,7 @@ class ItemServiceImplTest {
         assertThat(actual, equalTo(expected));
 
         verify(userRepository, times(1)).findById(user3.getId());
-        verify(itemRepository, times(1)).save(newItem);
+        verify(itemRepository, times(1)).save(any());
     }
 
     /**
@@ -534,7 +535,7 @@ class ItemServiceImplTest {
         Comment toSave = CommentMapper.toComment(expected);
         toSave.setAuthor(user2);
         toSave.setItem(item1);
-        when(commentRepository.save(toSave)).thenReturn(toSave);
+        when(commentRepository.save(any())).thenReturn(toSave);
 
         CommentDto actual = itemService.addComment(user2.getId(), item1.getId(), toAdd);
 
@@ -546,7 +547,7 @@ class ItemServiceImplTest {
         verify(itemRepository, times(1)).findById(item1.getId());
         verify(bookingRepository, times(1)).findPastApprovedByBookerAndItem(user2.getId(),
                 item1.getId(), PageRequest.of(0, 1));
-        verify(commentRepository, times(1)).save(toSave);
+        verify(commentRepository, times(1)).save(any());
     }
 
     /**

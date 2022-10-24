@@ -21,14 +21,14 @@ import java.time.LocalDateTime;
 /**
  * Класс комментариев для работы с БД
  */
-@Entity
-@Table(name = "comments")
 @Getter
 @Setter
 @Builder
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
+@Entity
+@Table(name = "comments")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

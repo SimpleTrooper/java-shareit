@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -116,14 +117,14 @@ class UserServiceImplTest {
     void shouldAdd() {
         UserDto userDtoToSave = UserMapper.toDto(user1);
         User userToSave = UserMapper.toUser(userDtoToSave);
-        when(userRepository.save(userToSave)).thenReturn(userToSave);
+        when(userRepository.save(any())).thenReturn(userToSave);
         UserDto expected = UserMapper.toDto(userToSave);
 
         UserDto actual = userService.add(userDtoToSave);
 
         assertThat(actual, equalTo(expected));
 
-        verify(userRepository, times(1)).save(userToSave);
+        verify(userRepository, times(1)).save(any());
     }
 
     /**
